@@ -6,25 +6,25 @@ import javax.annotation.Generated;
 import org.apache.beam.sdk.coders.Coder;
 
 @Generated("com.google.auto.value.processor.AutoValueProcessor")
- final class AutoValue_DummyIO_Read<ParameterT, OutputT> extends DummyIO.Read<ParameterT, OutputT> {
+ final class AutoValue_TestIO_Read<T> extends TestIO.Read<T> {
 
-  private final DummyIO.RowMapper<OutputT> rowMapper;
-  private final Coder<OutputT> coder;
+  private final TestIO.RowMapper<T> rowMapper;
+  private final Coder<T> coder;
 
-  private AutoValue_DummyIO_Read(
-       DummyIO.RowMapper<OutputT> rowMapper,
-       Coder<OutputT> coder) {
+  private AutoValue_TestIO_Read(
+       TestIO.RowMapper<T> rowMapper,
+       Coder<T> coder) {
     this.rowMapper = rowMapper;
     this.coder = coder;
   }
 
   @Override
-  DummyIO.RowMapper<OutputT> getRowMapper() {
+  TestIO.RowMapper<T> getRowMapper() {
     return rowMapper;
   }
 
   @Override
-  Coder<OutputT> getCoder() {
+  Coder<T> getCoder() {
     return coder;
   }
 
@@ -33,8 +33,8 @@ import org.apache.beam.sdk.coders.Coder;
     if (o == this) {
       return true;
     }
-    if (o instanceof DummyIO.Read) {
-      DummyIO.Read<?, ?> that = (DummyIO.Read<?, ?>) o;
+    if (o instanceof TestIO.Read) {
+      TestIO.Read<?> that = (TestIO.Read<?>) o;
       return ((this.rowMapper == null) ? (that.getRowMapper() == null) : this.rowMapper.equals(that.getRowMapper()))
            && ((this.coder == null) ? (that.getCoder() == null) : this.coder.equals(that.getCoder()));
     }
@@ -52,32 +52,32 @@ import org.apache.beam.sdk.coders.Coder;
   }
 
   @Override
-  DummyIO.Read.Builder<ParameterT, OutputT> builder() {
-    return new Builder<ParameterT, OutputT>(this);
+  TestIO.Read.Builder<T> toBuilder() {
+    return new Builder<T>(this);
   }
 
-  static final class Builder<ParameterT, OutputT> extends DummyIO.Read.Builder<ParameterT, OutputT> {
-    private DummyIO.RowMapper<OutputT> rowMapper;
-    private Coder<OutputT> coder;
+  static final class Builder<T> extends TestIO.Read.Builder<T> {
+    private TestIO.RowMapper<T> rowMapper;
+    private Coder<T> coder;
     Builder() {
     }
-    private Builder(DummyIO.Read<ParameterT, OutputT> source) {
+    private Builder(TestIO.Read<T> source) {
       this.rowMapper = source.getRowMapper();
       this.coder = source.getCoder();
     }
     @Override
-    DummyIO.Read.Builder<ParameterT, OutputT> setRowMapper(DummyIO.RowMapper<OutputT> rowMapper) {
+    TestIO.Read.Builder<T> setRowMapper(TestIO.RowMapper<T> rowMapper) {
       this.rowMapper = rowMapper;
       return this;
     }
     @Override
-    DummyIO.Read.Builder<ParameterT, OutputT> setCoder(Coder<OutputT> coder) {
+    TestIO.Read.Builder<T> setCoder(Coder<T> coder) {
       this.coder = coder;
       return this;
     }
     @Override
-    DummyIO.Read<ParameterT, OutputT> build() {
-      return new AutoValue_DummyIO_Read<ParameterT, OutputT>(
+    TestIO.Read<T> build() {
+      return new AutoValue_TestIO_Read<T>(
           this.rowMapper,
           this.coder);
     }

@@ -34,160 +34,48 @@ public class DummyIO {
 
     private DummyIO(){}
 
-    public static <T> Read<T> read(){
-        return new AutoValue_DummyIO_Read.Builder<T>()
-                .setConfiguration(null)
+    public static Read read(){
+        return new AutoValue_DummyIO_Read.Builder ()
                 .build();
     }
-    public static ReadRows readRows(){
-        return new AutoValue_DummyIO_ReadRows.Builder()
-                .setFetchSize(100)
-                .setOutputParallelization(false)
-                .build();
-    }
+
     @FunctionalInterface
     public interface RowMapper<T> extends Serializable {
         T mapRow() throws Exception;
     }
+
     @AutoValue
-    @Experimental(Experimental.Kind.SCHEMAS)
-    public abstract static class ReadRows<T> extends PTransform<PBegin, PCollection<Row>> {
-        abstract int getFetchSize();
-        abstract boolean getOutputParallelization();
-        abstract Builder<T> builder();
+    public abstract static class Read<ParameterT, OutputT>
+            extends PTransform<PCollection<ParameterT>, PCollection<OutputT>> {
+        abstract @Nullable RowMapper<OutputT> getRowMapper();
+        abstract @Nullable Coder<OutputT> getCoder();
+        abstract Builder<ParameterT, OutputT> builder();
 
         @AutoValue.Builder
-        abstract static class Builder<T> {
-            abstract Builder<T> setFetchSize(int fetchSize);
-            abstract Builder<T> setOutputParallelization(boolean outputParallelization);
-            abstract ReadRows<T> build();
+        abstract static class Builder<ParameterT, OutputT>  {
+            abstract Read.Builder<ParameterT, OutputT> setRowMapper(RowMapper<OutputT> rowMapper);
+            abstract Read.Builder<ParameterT, OutputT> setCoder(Coder<OutputT> coder);
+            abstract Read<ParameterT, OutputT>  build();
         }
 
-        public ReadRows withFetchSize(int fetchSize) {
-            checkArgument(fetchSize > 0, "fetch size must be > 0");
-            return builder().setFetchSize(fetchSize).build();
-        }
-
-        /**
-         * Whether to reshuffle the resulting PCollection so results are distributed to all workers. The
-         * default is to parallelize and should only be changed if this is known to be unnecessary.
-         */
-        public ReadRows withOutputParallelization(boolean outputParallelization) {
-            return builder().setOutputParallelization(outputParallelization).build();
-        }
-
-        public PCollection<Row> expand(PBegin input) {
-            Schema schema = SchemaUtils.toBeamSchema(null);
-            return null;
-            /*
-            PCollection<Row> rows = input.apply(
-                            DummyIO.<Row>read()
-                                    .withCoder(RowCoder.of(schema))
-                                    .withRowMapper(SchemaUtils.BeamRowMapper.of(schema))
-                                    .withConfiguration(null));
-
-             */
-
-
-        }
-    }
-    @AutoValue
-    public abstract static class Read<T> extends PTransform<PBegin, PCollection<T>> {
-        abstract @Nullable ValueProvider<KV<String,String>> getConfiguration();
-        abstract @Nullable RowMapper<T> getRowMapper();
-        abstract @Nullable Coder<T> getCoder();
-        abstract Builder<T> builder();
-
-        @AutoValue.Builder
-        abstract static class Builder<T> {
-            abstract Builder<T> setConfiguration(ValueProvider<KV<String,String>> config);
-            abstract Builder<T> setRowMapper(RowMapper<T> rowMapper);
-            abstract Builder<T> setCoder(Coder<T> coder);
-            abstract Read<T> build();
-        }
-
-        public Read<T> withConfiguration(ValueProvider<KV<String,String>> config){
-            checkArgument(config != null, "Configuration can not be null");
-            return builder().setConfiguration(config).build();
-        }
-
-        public Read<T> withRowMapper(RowMapper<T> rowMapper) {
+        public Read<ParameterT, OutputT>  withRowMapper(RowMapper<OutputT> rowMapper) {
             checkArgument(rowMapper != null, "Row Mapper can not be null");
             return builder().setRowMapper(rowMapper).build();
         }
 
-        public Read<T> withCoder(Coder<T> coder) {
+        public Read<ParameterT, OutputT>  withCoder(Coder<OutputT> coder) {
             checkArgument(coder != null, "coder can not be null");
             return builder().setCoder(coder).build();
         }
 
-        public PCollection<T> expand(PBegin input) {
-            ArrayList<String> attributes = null;
-            Schema schema = SchemaUtils.toBeamSchema(attributes);
-            PCollection<Row> rows = null;
-            return null;
-            //return input
-            //        .apply(Create.of((Void)null))
-            //        .apply(
-            //                DummyIO.
-             //       )
-        }
-
-    }
-    @AutoValue
-    public abstract static class ReadAll<ParameterT, OutputT>
-            extends PTransform<PCollection<ParameterT>, PCollection<OutputT>> {
-        abstract @Nullable RowMapper<OutputT> getRowMapper();
-        abstract @Nullable Coder<OutputT> getCoder();
-        abstract int getFetchSize();
-        abstract boolean getOutputParallelization();
-        abstract Builder<ParameterT, OutputT> toBuilder();
-        @AutoValue.Builder
-        abstract static class Builder<ParameterT, OutputT> {
-            abstract Builder<ParameterT, OutputT> setRowMapper(RowMapper<OutputT> rowMapper);
-            abstract Builder<ParameterT, OutputT> setCoder(Coder<OutputT> coder);
-            abstract Builder<ParameterT, OutputT> setFetchSize(int fetchSize);
-            abstract Builder<ParameterT, OutputT> setOutputParallelization(boolean outputParallelization);
-            abstract ReadAll<ParameterT, OutputT> build();
-        }
-
-        public ReadAll<ParameterT, OutputT> withRowMapper(RowMapper<OutputT> rowMapper) {
-            checkArgument(
-                    rowMapper != null,
-                    "JdbcIO.readAll().withRowMapper(rowMapper) called with null rowMapper");
-            return toBuilder().setRowMapper(rowMapper).build();
-        }
-
-        public ReadAll<ParameterT, OutputT> withCoder(Coder<OutputT> coder) {
-            checkArgument(coder != null, "JdbcIO.readAll().withCoder(coder) called with null coder");
-            return toBuilder().setCoder(coder).build();
-        }
-
-        /**
-         * This method is used to set the size of the data that is going to be fetched and loaded in
-         * memory per every database call. Please refer to: {@link java.sql.Statement#setFetchSize(int)}
-         * It should ONLY be used if the default value throws memory errors.
-         */
-        public ReadAll<ParameterT, OutputT> withFetchSize(int fetchSize) {
-            checkArgument(fetchSize > 0, "fetch size must be >0");
-            return toBuilder().setFetchSize(fetchSize).build();
-        }
-
-        /**
-         * Whether to reshuffle the resulting PCollection so results are distributed to all workers. The
-         * default is to parallelize and should only be changed if this is known to be unnecessary.
-         */
-        public ReadAll<ParameterT, OutputT> withOutputParallelization(boolean outputParallelization) {
-            return toBuilder().setOutputParallelization(outputParallelization).build();
-        }
-
-        @Override
         public PCollection<OutputT> expand(PCollection<ParameterT> input) {
             PCollection<OutputT> output =
                     input.apply(ParDo.of(new ReadFn<>(null, getRowMapper()))).setCoder(getCoder());
             return output;
         }
+
     }
+
     private static class ReadFn<ParameterT, OutputT> extends DoFn<ParameterT, OutputT> {
         private final ValueProvider<KV<String,String>> config;
         private final RowMapper<OutputT> rowMapper;

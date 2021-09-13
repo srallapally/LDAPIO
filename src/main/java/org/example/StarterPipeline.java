@@ -17,15 +17,26 @@
  */
 package org.example;
 
+import com.forgerock.connector.beam.TestIO;
+import com.forgerock.connector.beam.TestRowMapper;
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.coders.Coder;
+import org.apache.beam.sdk.coders.ListCoder;
+import org.apache.beam.sdk.coders.StringUtf8Coder;
+import org.apache.beam.sdk.io.TextIO;
+import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
-import org.apache.beam.sdk.transforms.Create;
-import org.apache.beam.sdk.transforms.DoFn;
-import org.apache.beam.sdk.transforms.MapElements;
-import org.apache.beam.sdk.transforms.ParDo;
-import org.apache.beam.sdk.transforms.SimpleFunction;
+import org.apache.beam.sdk.transforms.*;
+import org.apache.beam.sdk.values.PBegin;
+import org.apache.beam.sdk.values.PCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * A starter example for writing Beam programs.
@@ -44,26 +55,57 @@ import org.slf4j.LoggerFactory;
  *   --runner=DataflowRunner
  */
 public class StarterPipeline {
+
   private static final Logger LOG = LoggerFactory.getLogger(StarterPipeline.class);
 
   public static void main(String[] args) {
-    Pipeline p = Pipeline.create(
-        PipelineOptionsFactory.fromArgs(args).withValidation().create());
 
-    p.apply(Create.of("Hello", "World"))
-    .apply(MapElements.via(new SimpleFunction<String, String>() {
-      @Override
-      public String apply(String input) {
-        return input.toUpperCase();
-      }
-    }))
-    .apply(ParDo.of(new DoFn<String, Void>() {
-      @ProcessElement
-      public void processElement(ProcessContext c)  {
-        LOG.info(c.element());
-      }
-    }));
+    PipelineOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().create();
+    Pipeline p = Pipeline.create(options);
+    String outputPath = new File("src/main/resources/beam_output/").getPath();
+    p.apply(TestIO.<String>read().withRowMapper(new TestIO.RowMapper<String>(){
+                                              @Override
+                                              public String mapRow(String a) throws Exception {
+                                              return a;
+                                              }
+                                  })
+                                 .withCoder(StringUtf8Coder.of())
+           ).apply(TextIO.write().to(outputPath + "/output-").withNumShards(2));
 
-    p.run();
+    //p.apply(read()).apply(TextIO.write().to(outputPath + "/output-").withNumShards(2));
+    p.run().waitUntilFinish();
   }
+  private static PTransform<PBegin, PCollection<String>> read() {
+    final List<String> LINES = Arrays.asList(
+            "To be, or not to be: that is the question: ",
+            "Whether 'tis nobler in the mind to suffer ",
+            "The slings and arrows of outrageous fortune, ",
+            "Or to take arms against a sea of troubles, ");
+    return new PTransform<PBegin, PCollection<String>>() {
+
+      @Override
+      public PCollection<String> expand(PBegin input) {
+        return input.apply(UUID.randomUUID().toString(),Create.of(LINES)).setCoder(StringUtf8Coder.of());
+      }
+    };
+  }
+
+  /*
+  public static void main(String[] args) {
+    final List<String> LINES = Arrays.asList(
+            "To be, or not to be: that is the question: ",
+            "Whether 'tis nobler in the mind to suffer ",
+            "The slings and arrows of outrageous fortune, ",
+            "Or to take arms against a sea of troubles, ");
+    PipelineOptions options = PipelineOptionsFactory.create();
+    Pipeline pipeline = Pipeline.create(options);
+    PCollection<String> input = pipeline.apply(Create.of(LINES)).setCoder(StringUtf8Coder.of());
+    String outputPath = new File("src/main/resources/beam_output/").getPath();
+//You can control the number of output by specify the using .withNumShards(2)
+    input.apply(TextIO.write().to(outputPath + "/output-").withNumShards(2));
+    pipeline.run().waitUntilFinish();
+    System.out.println(input.isBounded());
+  }
+
+   */
 }
