@@ -1,2 +1,5 @@
-To be, or not to be: that is the question: 
-The slings and arrows of outrageous fortune, 
+{"sn":"Hunter","mail":"ahunter@example.com","givenName":"Allison"}
+{"mail":"aworrell@example.com","sn":"Worrell","givenName":"Alan"}
+{"mail":"ahel@example.com","givenName":"Andrew","sn":"Hel"}
+{"givenName":"Andy","mail":"awalker@example.com","sn":"Walker"}
+{"sn":"White","mail":"awhite@example.com","givenName":"Alan"}

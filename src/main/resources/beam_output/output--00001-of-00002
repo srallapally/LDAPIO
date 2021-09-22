@@ -1,2 +1,9 @@
-Whether 'tis nobler in the mind to suffer 
-Or to take arms against a sea of troubles, 
+{"mail":"achassin@example.com","givenName":"Ashley","sn":"Chassin"}
+{"mail":"ashelton@example.com","sn":"Shelton","givenName":"Alexander"}
+{"mail":"alutz@example.com","sn":"Lutz","givenName":"Alexander"}
+{"givenName":"Andy","mail":"ahall@example.com","sn":"Hall"}
+{"sn":"Jensen","givenName":"Allison","mail":"ajensen@example.com"}
+{"givenName":"Andrew","sn":"Langdon","mail":"alangdon@example.com"}
+{"givenName":"Andy","mail":"abergin@example.com","sn":"Bergin"}
+{"sn":"Barnes","mail":"abarnes@example.com","givenName":"Anne-Louise"}
+{"mail":"aknutson@example.com","sn":"Knutson","givenName":"Ashley"}
